@@ -1,0 +1,36 @@
+println """\
+Welcome to Gradle $gradle.gradleVersion - http://www.gradle.org
+Gradle home is set to: $gradle.gradleHomeDir
+Gradle user directory is set to: $gradle.gradleUserHomeDir
+
+Base directory: $projectDir
+Running script ${relativePath(buildFile)}
+"""
+
+usePlugin(com.mrhaki.gradle.MakeDirsPlugin)
+usePlugin(ws.antonov.gradle.protobuf.ProtobufPlugin)
+
+version = '0.1'
+group = 'com.google.protobuf.spring'
+httpPort = 8585
+
+// local 'lib' directory should have protobuf-format-java-1.2.jar and protobuf-java-2.3.0.jar
+repositories {
+  mavenCentral()
+  flatDir name: 'localRepository', dirs: 'lib'
+}
+
+configurations {
+  compile.transitive = true
+}
+
+dependencies {
+  compile group: 'javax.servlet', name: 'servlet-api', version: '2.5'
+  compile group: 'com.google.protobuf', name: 'protobuf-java', version: '2.3.0'
+  compile group: 'com.google.protobuf', name: 'protobuf-format-java', version: '1.2'
+  compile group: 'org.springframework', name: 'spring-aop', version: '3.0.2.RELEASE'
+  compile group: 'org.springframework', name: 'spring-webmvc', version: '3.0.2.RELEASE'
+  compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.5.0-M0'
+  //compile group: 'org.apache.mina', name: 'mina-core', version: '2.0.0-M4'
+  compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+}
