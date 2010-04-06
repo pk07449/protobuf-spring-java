@@ -18,12 +18,18 @@ public class DefaultProtobufSourceSet {
     private final SourceDirectorySet protobuf;
     private final UnionFileTree allProtobuf;
     private final PatternFilterable protobufPatterns = new PatternSet();
+    private final String type;
 
     public DefaultProtobufSourceSet(String displayName, FileResolver fileResolver) {
+        type = displayName;
         protobuf = new DefaultSourceDirectorySet(String.format("%s Protobuf source", displayName), fileResolver);
         protobuf.getFilter().include("**/*.proto");
         protobufPatterns.include("**/*.proto");
         allProtobuf = new UnionFileTree(String.format("%s Protobuf source", displayName), protobuf.matching(protobufPatterns));
+    }
+
+    public String getType() {
+        return type;
     }
 
     public SourceDirectorySet getProtobuf() {
