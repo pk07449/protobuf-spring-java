@@ -10,7 +10,7 @@
 # GRADLE_OPTS="$GRADLE_OPTS -Xmx512"
 # JAVA_OPTS="$JAVA_OPTS -Xmx512"
 
-#JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5000"
+#JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5000"
 
 warn ( ) {
     echo "${PROGNAME}: $*"

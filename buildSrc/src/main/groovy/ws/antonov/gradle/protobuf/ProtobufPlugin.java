@@ -3,7 +3,6 @@ package ws.antonov.gradle.protobuf;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ProjectPluginsContainer;
-import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.Action;
 import org.gradle.api.Task;
@@ -12,32 +11,28 @@ import org.gradle.api.plugins.Convention;
 import org.gradle.api.internal.IConventionAware;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.compile.Compile;
 import org.gradle.api.internal.tasks.DefaultSourceSet;
 import org.gradle.api.internal.DynamicObjectAware;
 import org.gradle.api.plugins.JavaPluginConvention;
 
+import java.io.File;
+
 /**
- * Created by IntelliJ IDEA.
- * User: aantonov
- * Date: Feb 19, 2010
- * Time: 9:43:38 AM
- * To change this template use File | Settings | File Templates.
+ *
  */
 
 public class ProtobufPlugin implements Plugin {
     public static final String PROTOBUF_CONFIGURATION_NAME = "protobuf";
 
-    public void use(Project project, ProjectPluginsContainer projectPluginsContainer) {
-        JavaPlugin javaPlugin = projectPluginsContainer.usePlugin(JavaPlugin.class, project);
+    public void use(Project project, ProjectPluginsContainer projectPluginsHandler) {
+        JavaPlugin javaPlugin = projectPluginsHandler.usePlugin(JavaPlugin.class, project);
 
-        Configuration protobufConfiguration = project.getConfigurations().add(PROTOBUF_CONFIGURATION_NAME).setVisible(false).setTransitive(false).
-                setDescription("The protobuf libraries to be used for this Java project.");
-        project.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME).extendsFrom(protobufConfiguration);
+        //Configuration groovyConfiguration = project.getConfigurations().add(PROTOBUF_CONFIGURATION_NAME).setVisible(false).setTransitive(false).
+        //        setDescription("The groovy libraries to be used for this Groovy project.");
+        //project.getConfigurations().getByName(COMPILE_CONFIGURATION_NAME).extendsFrom(groovyConfiguration);
 
-        configureCompileDefaults(project);
+        //configureCompileDefaults(project);
         configureSourceSetDefaults(project, javaPlugin);
-
     }
 
     private void configureCompileDefaults(final Project project) {
@@ -55,12 +50,12 @@ public class ProtobufPlugin implements Plugin {
     private void configureSourceSetDefaults(final Project project, final JavaPlugin javaPlugin) {
         final ProjectInternal projectInternal = (ProjectInternal) project;
         project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().allObjects(new Action<SourceSet>() {
-            public void execute(SourceSet sourceSet) {
+            public void execute(final SourceSet sourceSet) {
                 final DefaultProtobufSourceSet protobufSourceSet = new DefaultProtobufSourceSet(((DefaultSourceSet) sourceSet).getDisplayName(), projectInternal.getFileResolver());
                 ((DynamicObjectAware) sourceSet).getConvention().getPlugins().put("protobuf", protobufSourceSet);
 
                 protobufSourceSet.getProtobuf().srcDir(String.format("src/%s/proto", sourceSet.getName()));
-                sourceSet.getJava().srcDir(String.format("%s/proto-generated", project.getBuildDir()));
+                sourceSet.getJava().srcDir(String.format("%s/proto-generated/%s", project.getBuildDir(), sourceSet.getName()));
                 sourceSet.getResources().getFilter().exclude("**/*.proto");
                 //sourceSet.getAllJava().add(protobufSourceSet.getProtobuf().matching(sourceSet.getJava().getFilter()));
                 //sourceSet.getAllSource().add(protobufSourceSet.getProtobuf());
@@ -80,13 +75,15 @@ public class ProtobufPlugin implements Plugin {
                     }
                 });
 
+                compile.conventionMapping("destinationDir", new ConventionValue() {
+                    public Object getValue(Convention convention, IConventionAware conventionAwareObject) {
+                        return new File(String.format("%s/proto-generated/%s", project.getBuildDir(), sourceSet.getName()));
+                    }
+                });
+
                 project.getTasks().getByName(sourceSet.getClassesTaskName()).dependsOn(compileTaskName);
             }
         });
-    }
-
-    private JavaPluginConvention java(Convention convention) {
-        return convention.getPlugin(JavaPluginConvention.class);
     }
 
     private SourceSet main(Convention convention) {

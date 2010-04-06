@@ -22,6 +22,10 @@ repositories {
 
 configurations {
   compile.transitive = true
+  testCompile {
+    transitive = true
+    extendsFrom compile
+  }
 }
 
 dependencies {
@@ -33,4 +37,15 @@ dependencies {
   compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.5.0-M0'
   //compile group: 'org.apache.mina', name: 'mina-core', version: '2.0.0-M4'
   compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+
+  testCompile "junit:junit:3.8.2"
+  testCompile group: "org.springframework", name: "spring-test", version: "3.0.2.RELEASE"
+}
+
+task listCompileJars << {
+    configurations.compile.each { File file -> println file.name }
+}
+
+task listTestJars << {
+    configurations.testCompile.each { File file -> println file.name }
 }

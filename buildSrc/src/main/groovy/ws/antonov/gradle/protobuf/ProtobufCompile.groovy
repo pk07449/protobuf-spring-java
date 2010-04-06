@@ -12,7 +12,7 @@ import org.gradle.api.logging.LogLevel
 import org.gradle.api.InvalidUserDataException;
 
 /**
- * 
+ *
  */
 
 public class ProtobufCompile extends Compile {
@@ -21,11 +21,11 @@ public class ProtobufCompile extends Compile {
         //println "Compiling protos..."
         //println "${sourceSets.main.java.srcDirs}"
         //println project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME).protobuf.class
-        project.file("${project.buildDir}/proto-generated").mkdir()
-        def dirs = getFileList(mainProtobuf(project.getConvention()).protobuf.srcDirs, " -I")
+        getDestinationDir().mkdir()
+        def dirs = GUtil.join(getDefaultSource().srcDirs, " -I")
         //println dirs
-        def files = getFileList(mainProtobuf(project.getConvention()).allProtobuf.getFiles(), " ")
-        def cmd = "protoc -I${dirs} --java_out=${project.buildDir}/proto-generated ${files}"
+        def files = GUtil.join(getDefaultSource().getFiles(), " ")
+        def cmd = "protoc -I${dirs} --java_out=${getDestinationDir()} ${files}"
         logger.log(LogLevel.INFO, cmd)
         Process result = cmd.execute()
         result.waitFor()
@@ -38,17 +38,5 @@ public class ProtobufCompile extends Compile {
             //logger.log(LogLevel.ERROR, sberr.toString())
             throw new InvalidUserDataException(sberr.toString())
         }
-    }
-
-    private SourceSet main(Convention convention) {
-        return convention.getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    }
-    
-    private DefaultProtobufSourceSet mainProtobuf(Convention convention) {
-        return ((DynamicObjectAware) main(convention)).getConvention().getPlugin(DefaultProtobufSourceSet.class);
-    }
-
-    private String getFileList(Set<File> files, String separator) {
-        return GUtil.join(files, separator)
     }
 }
