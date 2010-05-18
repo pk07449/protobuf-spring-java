@@ -35,7 +35,8 @@ public class ProtobufHttpMessageConverterTest extends TestCase {
 
         converter.write(msg, ProtobufHttpMessageConverter.PROTOBUF, out);
 
-        assertEquals(msg.toByteArray(), response.getContentAsByteArray());
+        Tester obj = Tester.parseFrom(response.getContentAsByteArray());
+        assertEquals(msg, obj);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         HttpInputMessage in = new ServletServerHttpRequest(request);

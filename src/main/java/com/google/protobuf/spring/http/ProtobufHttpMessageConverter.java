@@ -35,7 +35,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     }
 
     public ProtobufHttpMessageConverter(ExtensionRegistryInitializer registryInitializer) {
-        super(PROTOBUF, HTML, TEXT, XML, JSON);
+        super(PROTOBUF, JSON, HTML, TEXT, XML);
         initializeExtentionRegistry(registryInitializer);
     }
 
@@ -53,7 +53,11 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
             Message.Builder builder = (Message.Builder) m.invoke(clazz);
             if (isJson(contentType)) {
                 String data = convertInputStreamToString(inputMessage.getBody());
-                JsonFormat.merge(data, extensionRegistry, builder);
+                if (inputMessage.getHeaders().getFirst("Server").contains("CouchDB"))
+                    CouchDBFormat.merge(data, extensionRegistry, builder);
+                else
+                    JsonFormat.merge(data, extensionRegistry, builder);
+                
             } else if (isText(contentType)) {
                 String data = convertInputStreamToString(inputMessage.getBody());
                 TextFormat.merge(data, extensionRegistry, builder);
@@ -149,10 +153,10 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
         }
     }
 
-    private String convertInputStreamToString(InputStream io) {
+    public static String convertInputStreamToString(InputStream io) {
         StringBuffer sb = new StringBuffer();
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(io));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(io, "UTF-8"));
             String line = reader.readLine();
             while (line != null) {
                 sb.append(line).append(LS);
