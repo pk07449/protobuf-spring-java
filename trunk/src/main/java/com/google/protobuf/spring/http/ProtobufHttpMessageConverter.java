@@ -1,5 +1,6 @@
 package com.google.protobuf.spring.http;
 
+import com.google.protobuf.*;
 import com.google.protobuf.spring.ExtensionRegistryInitializer;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
