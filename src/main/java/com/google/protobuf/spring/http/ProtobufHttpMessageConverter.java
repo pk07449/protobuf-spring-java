@@ -1,18 +1,20 @@
 package com.google.protobuf.spring.http;
 
-import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.converter.HttpMessageNotWritableException;
+import com.google.protobuf.spring.ExtensionRegistryInitializer;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.AbstractHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.util.FileCopyUtils;
-import com.google.protobuf.spring.ExtensionRegistryInitializer;
-import com.google.protobuf.*;
 
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -53,7 +55,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
             Message.Builder builder = (Message.Builder) m.invoke(clazz);
             if (isJson(contentType)) {
                 String data = convertInputStreamToString(inputMessage.getBody());
-                if (inputMessage.getHeaders().getFirst("Server").contains("CouchDB"))
+                String serverHeader = inputMessage.getHeaders().getFirst("Server");
+                if (serverHeader != null && serverHeader.contains("CouchDB"))
                     CouchDBFormat.merge(data, extensionRegistry, builder);
                 else
                     JsonFormat.merge(data, extensionRegistry, builder);
