@@ -10,6 +10,11 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.util.FileCopyUtils;
 
+import com.googlecode.protobuf.format.CouchDBFormat;
+import com.googlecode.protobuf.format.HtmlFormat;
+import com.googlecode.protobuf.format.JsonFormat;
+import com.googlecode.protobuf.format.XmlFormat;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +56,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     protected Message readInternal(Class<? extends Message> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
         MediaType contentType = inputMessage.getHeaders().getContentType();
         contentType = contentType != null ? contentType : PROTOBUF;
+
         try {
             Method m = getNewBuilderMessageMethod(clazz);
             Message.Builder builder = (Message.Builder) m.invoke(clazz);
