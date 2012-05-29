@@ -25,7 +25,7 @@ public @interface ServiceRequest {
      * </ul>
      * @return
      */
-    public String contentType() default "protobuf";
+    public String contentType() default "application/x-protobuf";
 
     public HttpMethod method();
 }
