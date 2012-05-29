@@ -4,8 +4,11 @@ import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
 import com.google.protobuf.spring.ExtensionRegistryInitializer;
 import com.google.protobuf.spring.http.ProtobufHttpMessageConverter;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.Assert;
@@ -13,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -263,6 +267,7 @@ public abstract class AbstractClientHttpInvocationHandler implements ClientHttpI
     }
 
     public Object doObject(ClientHttpRequestContext requestContext) throws URISyntaxException {
+    	/*
         switch (requestContext.getRequestMethod()) {
             case GET:
                 return restTemplate.getForObject(new URI(requestContext.getRequestUrl()),
@@ -272,6 +277,17 @@ public abstract class AbstractClientHttpInvocationHandler implements ClientHttpI
             case DELETE:
         }
         return null;
+        */
+    	
+    	HttpHeaders requestHeaders = new HttpHeaders();
+    	java.util.List<MediaType> mediaTypes = java.util.Arrays.asList(new MediaType[] {requestContext.getResponseDesiredContentType()});
+    	requestHeaders.setAccept(mediaTypes);
+//    	requestHeaders.set("Connection", "close");
+    	HttpEntity<?> requestEntity = new HttpEntity<Object>(requestHeaders);
+    	ResponseEntity<?> response = restTemplate.exchange(new URI(requestContext.getRequestUrl()), requestContext.getRequestMethod(), requestEntity, requestContext.getReturnObjectType());
+    	return response.getBody();
+        
+        
     }
 
     public ClientHttpResponse doHttpResponse(ClientHttpRequestContext requestContext) throws URISyntaxException {
