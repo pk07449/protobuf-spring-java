@@ -1,0 +1,1 @@
+Implementation of Spring/MVC converters, adapters and REST template functionality to build and consume RESTful webservices using Google Protocol Buffers over HTTP
